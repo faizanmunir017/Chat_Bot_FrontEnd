@@ -1,6 +1,5 @@
-
-import SVGIcon from 'src/assets/icon'
-import './home.css'
+import SVGIcon from "assets/icon";
+import "./home.css";
 
 function Home() {
   return (
@@ -13,5 +12,3 @@ function Home() {
   );
 }
 export default Home;
-
-

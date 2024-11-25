@@ -1,25 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent, MouseEvent } from "react";
 import "./App.css";
 
-function App() {
-  const [messages, setMessages] = useState([]);
-  const [userInput, setUserInput] = useState("");
+interface Message {
+  sender: "user" | "bot";
+  text: string;
+}
 
-  // const botReplies = [
-  //   "Hello! How can I help you?",
-  //   "I'm here to assist you!",
-  //   "Can you please elaborate?",
-  //   "Interesting! Tell me more.",
-  //   "That's great to hear!",
-  //   "I'm just a bot, but I'm here for you!",
-  // ];
+function App() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [userInput, setUserInput] = useState<string>("");
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setUserInput(e.target.value);
+  };
 
   const handleSendMessage = async () => {
     if (userInput.trim() === "") return;
-  
-    const userMessage = { sender: "user", text: userInput };
-    setMessages([...messages, userMessage]);
-  
+
+    const userMessage: Message = { sender: "user", text: userInput };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+
     try {
       const response = await fetch("http://127.0.0.1:8000/chat", {
         method: "POST",
@@ -28,24 +28,26 @@ function App() {
         },
         body: JSON.stringify({ prompt: userInput }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch response from backend");
       }
-  
+
       const data = await response.json();
-      const botMessage = { sender: "bot", text: data.response };
-  
+      const botMessage: Message = { sender: "bot", text: data.response };
+
       setMessages((prevMessages) => [...prevMessages, botMessage]);
     } catch (error) {
       console.error("Error:", error);
-      const botMessage = { sender: "bot", text: "Something went wrong. Please try again." };
+      const botMessage: Message = {
+        sender: "bot",
+        text: "Something went wrong. Please try again.",
+      };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
     }
-  
+
     setUserInput("");
   };
-  
 
   return (
     <div className="chat-container">
@@ -65,7 +67,7 @@ function App() {
         <input
           type="text"
           value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
+          onChange={handleInputChange}
           placeholder="Type your message..."
         />
         <button onClick={handleSendMessage}>Send</button>
