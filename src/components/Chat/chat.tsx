@@ -63,13 +63,19 @@ function Chat() {
     <div className="chat-container">
       <div className="chat-box">
         {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`chat-message ${
-              message.sender === "user" ? "user-message" : "bot-message"
-            }`}
-          >
-            {message.text}
+          <div key={index} className="chat-message-container">
+            {message.sender === "bot" && (
+              <div className="bot-icon">
+                <BotMessageIcon />
+              </div>
+            )}
+            <div
+              className={`chat-message ${
+                message.sender === "user" ? "user-message" : "bot-message"
+              }`}
+            >
+              {message.text}
+            </div>
           </div>
         ))}
       </div>

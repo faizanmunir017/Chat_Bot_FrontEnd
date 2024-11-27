@@ -28,6 +28,11 @@ body {
   overflow-y: auto;
 }
 
+.chat-message-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .chat-message {
   margin: 20px 0;
   padding: 10px 15px;
