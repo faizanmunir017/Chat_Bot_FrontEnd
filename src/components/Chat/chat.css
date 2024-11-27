@@ -34,7 +34,7 @@ body {
 }
 
 .chat-message {
-  margin: 20px 0;
+  margin: 10px 0;
   padding: 10px 15px;
   border-radius: 20px;
   max-width: 70%;
@@ -51,6 +51,13 @@ body {
   align-self: flex-start;
   background-color: #eaeaea;
   color: #333;
+}
+
+.typing-indicator {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #888;
+  display: inline-block;
 }
 
 .input-container {
