@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent, useRef } from "react";
+import { useState, useEffect } from "react";
 import BotMessageIcon from "assets/botMessageIcon";
 import { motion } from "framer-motion"; // Correct import for motion
 
@@ -7,14 +7,12 @@ import "./chat.css";
 interface Message {
   sender: "user" | "bot";
   text: string;
+  isTyping?: boolean; // Optional property for typing indication
 }
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>("");
-  const [isTyping, setIsTyping] = useState<boolean>(false);
-
-  const typingRef = useRef(false);
 
   useEffect(() => {
     const initialBotMessage: Message = {
@@ -24,20 +22,15 @@ function Chat() {
     setMessages([initialBotMessage]);
   }, []);
 
-  useEffect(() => {
-    // Log every render to debug
-    console.log("Component re-rendered. isTyping:", isTyping);
-  });
-
   const handleSendMessage = async () => {
-    typingRef.current = true;
     if (userInput.trim() === "") return;
 
     const userMessage: Message = { sender: "user", text: userInput };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setUserInput("");
 
-    setIsTyping(true);
+    const typingMessage: Message = { sender: "bot", text: "", isTyping: true };
+    setMessages((prevMessages) => [...prevMessages, typingMessage]);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/chat", {
@@ -54,25 +47,25 @@ function Chat() {
 
       const data = await response.json();
       const botMessage: Message = { sender: "bot", text: data.response };
-      console.log(" try Typing: ", isTyping);
-      // setIsTyping(false);
-      console.log("try Typing: ", isTyping);
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
+
+      setMessages((prevMessages) =>
+        prevMessages.map((msg, index) =>
+          index === prevMessages.length - 1 && msg.isTyping ? botMessage : msg
+        )
+      );
     } catch (error) {
       console.error("Error:", error);
+
       const botMessage: Message = {
         sender: "bot",
         text: "Something went wrong. Please try again.",
       };
-      console.log(" catch Typing: ", isTyping);
 
-      // if (typingRef.current) {
-      //   setIsTyping(false);
-      //   typingRef.current = false;
-      // }
-
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-      setIsTyping(false);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg, index) =>
+          index === prevMessages.length - 1 && msg.isTyping ? botMessage : msg
+        )
+      );
     }
   };
 
@@ -87,9 +80,7 @@ function Chat() {
               </div>
             )}
 
-            {isTyping &&
-            message.sender === "bot" &&
-            index === messages.length - 1 ? (
+            {message.isTyping ? (
               <motion.div
                 className="typing-indicator"
                 animate={{
@@ -126,9 +117,7 @@ function Chat() {
           <input
             type="text"
             value={userInput}
-            onChange={(e) => {
-              setUserInput(e.target.value);
-            }}
+            onChange={(e) => setUserInput(e.target.value)}
             placeholder="Type your message..."
           />
           <button type="submit">Send</button>
