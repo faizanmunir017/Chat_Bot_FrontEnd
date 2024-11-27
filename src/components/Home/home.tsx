@@ -1,11 +1,11 @@
-import SVGIcon from "assets/icon";
+import WelcomeIcon from "assets/welcomeIcon";
 import "./home.css";
 
 function Home() {
   return (
     <>
       <div className="Welcome-Screen">
-        <SVGIcon></SVGIcon>
+        <WelcomeIcon></WelcomeIcon>
         <h1>Welcome!</h1>
       </div>
     </>

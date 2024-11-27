@@ -1,4 +1,6 @@
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
+
+import BotMessageIcon from "assets/botMessageIcon";
 
 import "./chat.css";
 
@@ -11,6 +13,14 @@ function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>("");
 
+  useEffect(() => {
+    const initialBotMessage: Message = {
+      sender: "bot",
+      text: "Hello! How may I help you?",
+    };
+    setMessages([initialBotMessage]);
+  }, []);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
   };
@@ -20,6 +30,7 @@ function Chat() {
 
     const userMessage: Message = { sender: "user", text: userInput };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setUserInput("");
 
     try {
       const response = await fetch("http://127.0.0.1:8000/chat", {
@@ -46,8 +57,6 @@ function Chat() {
       };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
     }
-
-    setUserInput("");
   };
 
   return (
@@ -67,7 +76,7 @@ function Chat() {
       <div className="input-container">
         <form
           onSubmit={(e) => {
-            e.preventDefault(); // Prevent the default form submission behavior
+            e.preventDefault();
             handleSendMessage();
           }}
         >
