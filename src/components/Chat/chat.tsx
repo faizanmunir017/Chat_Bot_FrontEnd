@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import BotMessageIcon from "assets/botMessageIcon";
-import { motion } from "framer-motion"; // Correct import for motion
+import { motion } from "framer-motion";
 
 import "./chat.css";
 
 interface Message {
   sender: "user" | "bot";
   text: string;
-  isTyping?: boolean; // Optional property for typing indication
+  isTyping?: boolean;
 }
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>("");
+  const [isTyping, setIsTyping] = useState<boolean>(false);
 
   useEffect(() => {
     const initialBotMessage: Message = {
@@ -29,9 +30,7 @@ function Chat() {
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setUserInput("");
 
-    const typingMessage: Message = { sender: "bot", text: "", isTyping: true };
-    setMessages((prevMessages) => [...prevMessages, typingMessage]);
-
+    setIsTyping(true);
     try {
       const response = await fetch("http://127.0.0.1:8000/chat", {
         method: "POST",
@@ -46,13 +45,10 @@ function Chat() {
       }
 
       const data = await response.json();
-      const botMessage: Message = { sender: "bot", text: data.response };
 
-      setMessages((prevMessages) =>
-        prevMessages.map((msg, index) =>
-          index === prevMessages.length - 1 && msg.isTyping ? botMessage : msg
-        )
-      );
+      const botMessage: Message = { sender: "bot", text: data.response };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+      setIsTyping(false);
     } catch (error) {
       console.error("Error:", error);
 
@@ -61,11 +57,8 @@ function Chat() {
         text: "Something went wrong. Please try again.",
       };
 
-      setMessages((prevMessages) =>
-        prevMessages.map((msg, index) =>
-          index === prevMessages.length - 1 && msg.isTyping ? botMessage : msg
-        )
-      );
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+      setIsTyping(false);
     }
   };
 
@@ -80,25 +73,8 @@ function Chat() {
               </div>
             )}
 
-            {message.isTyping ? (
-              <motion.div
-                className="typing-indicator"
-                animate={{
-                  opacity: [0, 1, 0],
-                  x: [0, 10, 0],
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 1.5,
-                  repeatType: "loop",
-                }}
-              >
-                ...
-              </motion.div>
-            ) : (
-              message.sender === "bot" && (
-                <div className="chat-message bot-message">{message.text}</div>
-              )
+            {message.sender === "bot" && (
+              <div className="chat-message bot-message">{message.text}</div>
             )}
 
             {message.sender === "user" && (
@@ -106,6 +82,27 @@ function Chat() {
             )}
           </div>
         ))}
+        {isTyping && (
+          <div className="typing-container">
+            <div className="bot-icon">
+              <BotMessageIcon />
+            </div>
+            <motion.div
+              className="typing-indicator"
+              animate={{
+                opacity: [0, 1, 0],
+                x: [0, 10, 0],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                repeatType: "loop",
+              }}
+            >
+              ...
+            </motion.div>
+          </div>
+        )}
       </div>
       <div className="input-container">
         <form
