@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import BotMessageIcon from "assets/botMessageIcon";
 import { motion } from "framer-motion";
-
 import "./chat.css";
+
+const BaseUrl: string = import.meta.env.VITE_API_BASE_URL;
 
 interface Message {
   sender: "user" | "bot";
@@ -32,7 +33,7 @@ function Chat() {
 
     setIsTyping(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/chat", {
+      const response = await fetch(`${BaseUrl}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
