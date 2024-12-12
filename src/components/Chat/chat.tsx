@@ -8,7 +8,6 @@ const BaseUrl: string = import.meta.env.VITE_API_BASE_URL;
 interface Message {
   sender: "user" | "bot";
   text: string;
-  isTyping?: boolean;
 }
 
 function Chat() {
@@ -17,11 +16,27 @@ function Chat() {
   const [isTyping, setIsTyping] = useState<boolean>(false);
 
   useEffect(() => {
-    const initialBotMessage: Message = {
-      sender: "bot",
-      text: "Hello! How may I help you?",
+    const load_messages = async () => {
+      try {
+        const response = await fetch(`${BaseUrl}/chat`, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          console.log("Error in fetching messages");
+        }
+
+        const data = await response.json();
+
+        if (data.messages) {
+          setMessages((prevMessages) => [...data.messages, ...prevMessages]);
+        }
+      } catch (error) {
+        console.log("Error in loading messages");
+      }
     };
-    setMessages([initialBotMessage]);
+
+    load_messages();
   }, []);
 
   const handleSendMessage = async () => {
@@ -46,6 +61,7 @@ function Chat() {
       }
 
       const data = await response.json();
+      console.log("data is ", data);
 
       const botMessage: Message = { sender: "bot", text: data.response };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
