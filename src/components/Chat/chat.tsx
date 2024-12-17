@@ -16,6 +16,8 @@ function Chat() {
   const [isTyping, setIsTyping] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log("useEffect called");
+
     const load_messages = async () => {
       try {
         const response = await fetch(`${BaseUrl}/chat`, {
